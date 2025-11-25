@@ -1,0 +1,129 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // HELPER FUNCTIONS
+    // ==========================================
+    
+    // Kullanıcı giriş yapmış mı?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Kullanıcı admin mi?
+    function isAdmin() {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Kullanıcı kendi kaydına mı erişiyor?
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Kullanıcı aktif mi?
+    function isActiveUser() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
+    }
+    
+    // Yeni oluşturulan veri geçerli mi? (güvenlik kontrolleri)
+    function isValidLoanRequest() {
+      let loan = request.resource.data;
+      return loan.userId == request.auth.uid &&
+             loan.status == 'pending' &&
+             loan.keys().hasAll(['userId', 'bookId', 'loanDate', 'dueDate', 'status']);
+    }
+    
+    // ==========================================
+    // USERS COLLECTION
+    // ==========================================
+    match /users/{userId} {
+      // Okuma: Tüm giriş yapmış kullanıcılar okuyabilir
+      allow read: if isSignedIn();
+      
+      // Oluşturma: Sadece kendi kaydını oluşturabilir ve role 'member' olmalı
+      allow create: if isSignedIn() && 
+                       request.auth.uid == userId &&
+                       request.resource.data.role == 'member' &&
+                       request.resource.data.email == request.auth.token.email;
+      
+      // Güncelleme: 
+      // - Kullanıcı kendi profilini güncelleyebilir (role değiştiremez)
+      // - Admin herkesin profilini güncelleyebilir
+      allow update: if isOwner(userId) && 
+                       request.resource.data.role == resource.data.role ||
+                       isAdmin();
+      
+      // Silme: Sadece admin silebilir
+      allow delete: if isAdmin();
+    }
+    
+    // ==========================================
+    // BOOKS COLLECTION
+    // ==========================================
+    match /books/{bookId} {
+      // Okuma: Tüm giriş yapmış kullanıcılar okuyabilir
+      allow read: if isSignedIn();
+      
+      // Oluşturma/Güncelleme/Silme: Sadece admin
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll(['title', 'author', 'categoryId', 'available']);
+      
+      allow update: if isAdmin();
+      
+      allow delete: if isAdmin();
+    }
+    
+    // ==========================================
+    // CATEGORIES COLLECTION
+    // ==========================================
+    match /categories/{categoryId} {
+      // Okuma: Tüm giriş yapmış kullanıcılar okuyabilir
+      allow read: if isSignedIn();
+      
+      // Oluşturma/Güncelleme/Silme: Sadece admin
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll(['name', 'isActive']);
+      
+      allow update: if isAdmin();
+      
+      allow delete: if isAdmin();
+    }
+    
+    // ==========================================
+    // LOANS COLLECTION
+    // ==========================================
+    match /loans/{loanId} {
+      // Okuma: 
+      // - Admin tüm ödünçleri görebilir
+      // - Kullanıcı sadece kendi ödünçlerini görebilir
+      allow read: if isAdmin() || 
+                     (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      // Oluşturma: 
+      // - Sadece kendi adına talep oluşturabilir
+      // - Status 'pending' olmalı
+      // - Gerekli alanlar mevcut olmalı
+      allow create: if isSignedIn() && 
+                       isActiveUser() &&
+                       isValidLoanRequest();
+      
+      // Güncelleme:
+      // - Admin tüm ödünçleri güncelleyebilir (onaylama/red)
+      // - Kullanıcı sadece kendi ödüncünü iade edebilir
+      allow update: if isAdmin() ||
+                       (isOwner(resource.data.userId) && 
+                        resource.data.status == 'borrowed' &&
+                        request.resource.data.status == 'returned' &&
+                        request.resource.data.returnDate != null);
+      
+      // Silme: Sadece admin silebilir
+      allow delete: if isAdmin();
+    }
+  }
+}
+
