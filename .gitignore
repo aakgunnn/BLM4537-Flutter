@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+BACKEND_RESTART_NEEDED.md
+BLM4531.pdf
+DOTNET_INTEGRATION_GUIDE.md
+FIREBASE_SETUP.md
+FinalRapor_Flutter.tex
