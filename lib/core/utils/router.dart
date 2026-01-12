@@ -10,6 +10,7 @@ import '../../screens/user/profile_screen.dart';
 import '../../screens/admin/admin_dashboard_screen.dart';
 import '../../screens/admin/book_management_screen.dart';
 import '../../screens/admin/loan_management_screen.dart';
+import '../../screens/admin/statistics_screen.dart';
 import '../../providers/auth_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -76,6 +77,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/loans',
         builder: (context, state) => const LoanManagementScreen(),
+      ),
+      GoRoute(
+        path: '/admin/statistics',
+        builder: (context, state) => const StatisticsScreen(),
       ),
     ],
   );
