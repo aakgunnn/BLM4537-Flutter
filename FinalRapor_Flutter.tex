@@ -1,0 +1,410 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+
+\geometry{margin=2.5cm}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+% Kod stili
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    showstringspaces=false
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Kutuphane Yonetim Sistemi - Mobil}
+\lhead{BLM4537 Final Projesi}
+\rfoot{Sayfa \thepage}
+
+\begin{document}
+
+% ==================== KAPAK SAYFASI ====================
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    {\Large\textbf{ANKARA UNIVERSITESI}}\\[0.3cm]
+    {\large Muhendislik Fakultesi}\\[0.3cm]
+    {\large Bilgisayar Muhendisligi Bolumu}\\[2cm]
+    
+    {\Huge\textbf{KUTUPHANE YONETIM SISTEMI}}\\[0.5cm]
+    {\Large Flutter Mobil Uygulama}\\[2cm]
+    
+    {\large\textbf{BLM4537 - Mobil Programlama Final Projesi}}\\[2cm]
+    
+    \begin{tabular}{ll}
+        \textbf{Ogrenci:} & Ahmet Akgun \\
+        \textbf{Ogrenci No:} & 22290602 \\
+        \textbf{Danisman:} & [HOCANIN ADI] \\
+    \end{tabular}\\[2cm]
+    
+    \vfill
+    
+    % VIDEO LINKI
+    \fbox{\parbox{0.8\textwidth}{
+        \centering
+        \textbf{PROJE TANITIM VIDEOSU}\\[0.3cm]
+        \url{https://BURAYA-VIDEO-LINKINI-KOYUN}\\[0.2cm]
+        \small (Video izinli ve herkese acik olmalidir)
+    }}
+    
+    \vspace{1cm}
+    {\large Ocak 2026}
+\end{titlepage}
+
+% ==================== ICINDEKILER ====================
+\tableofcontents
+\newpage
+
+% ==================== OZET ====================
+\section{Ozet}
+Bu proje, Flutter framework kullanilarak gelistirilen cross-platform bir kutuphane yonetim sistemi mobil uygulamasidir. Uygulama, .NET Core Web API backend ile iletisim kurarak kitap yonetimi, odunc alma/iade islemleri ve istatistik goruntuleme gibi islevleri saglamaktadir.
+
+\textbf{Kullanilan Teknolojiler:}
+\begin{itemize}
+    \item \textbf{Framework:} Flutter 3.x, Dart
+    \item \textbf{State Management:} Riverpod
+    \item \textbf{HTTP Client:} Dio
+    \item \textbf{Navigation:} go\_router
+    \item \textbf{Grafikler:} fl\_chart
+    \item \textbf{Code Generation:} Freezed, json\_serializable
+    \item \textbf{Secure Storage:} flutter\_secure\_storage
+\end{itemize}
+
+% ==================== GIRIS ====================
+\section{Giris ve Amac}
+
+\subsection{Projenin Amaci}
+Bu mobil uygulamanin temel amaci, kutuphane yonetim sistemine mobil cihazlardan erisim saglamaktir. Uygulama su ozellikleri sunmaktadir:
+
+\begin{enumerate}
+    \item Kitap kataloguna goz atma ve arama
+    \item Kullanici kayit ve giris islemleri
+    \item Kitap odunc talebi olusturma
+    \item Odunc gecmisini goruntuleme
+    \item Admin paneli ile yonetim islemleri
+    \item Istatistik ve raporlama (grafikler)
+\end{enumerate}
+
+\subsection{Kapsam}
+Uygulama iki kullanici rolunu desteklemektedir:
+\begin{itemize}
+    \item \textbf{Uye (Member):} Kitap goruntuleme, odunc talep etme, profil yonetimi
+    \item \textbf{Admin:} Tum islemler + kitap/odunc yonetimi, istatistik goruntuleme
+\end{itemize}
+
+% ==================== MIMARI ====================
+\section{Uygulama Mimarisi}
+
+\subsection{Katmanli Yapi}
+Uygulama, Clean Architecture prensiplerine uygun katmanli bir yapida tasarlanmistir:
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{|c|}
+\hline
+\textbf{Screens (UI Layer)} \\
+Auth, User, Admin ekranlari \\
+\hline
+\textbf{Widgets (Reusable Components)} \\
+BookCard, LoadingWidget, vs. \\
+\hline
+\textbf{Providers (State Management)} \\
+AuthProvider, BookProvider, LoanProvider, StatisticsProvider \\
+\hline
+\textbf{Services (Business Logic)} \\
+ApiClient, AuthService, BookService, LoanService \\
+\hline
+\textbf{Models (Data Layer)} \\
+BookModel, UserModel, LoanModel, StatisticsModel \\
+\hline
+\end{tabular}
+\caption{Flutter Uygulama Mimarisi}
+\end{figure}
+
+\subsection{Proje Dosya Yapisi}
+\begin{lstlisting}[language=bash]
+lib/
+|-- main.dart                 # Uygulama giris noktasi
+|-- core/
+|   |-- constants/            # API sabitleri
+|   |-- theme/                # Tema ve renkler
+|   |-- utils/                # Router, yardimci fonksiyonlar
+|-- models/
+|   |-- book_model.dart       # Kitap modeli
+|   |-- user_model.dart       # Kullanici modeli
+|   |-- loan_model.dart       # Odunc modeli
+|   |-- statistics_model.dart # Istatistik modeli
+|   |-- *.freezed.dart        # Freezed generated
+|   |-- *.g.dart              # JSON serializable
+|-- services/
+|   |-- api_client.dart       # Dio HTTP client
+|   |-- auth_service.dart     # Kimlik dogrulama
+|   |-- book_service.dart     # Kitap islemleri
+|   |-- loan_service.dart     # Odunc islemleri
+|   |-- statistics_service.dart # Istatistik API
+|-- providers/
+|   |-- auth_provider.dart    # Auth state
+|   |-- book_provider.dart    # Book state
+|   |-- loan_provider.dart    # Loan state
+|   |-- statistics_provider.dart # Statistics state
+|-- screens/
+|   |-- auth/                 # Giris, Kayit, Splash
+|   |-- user/                 # Ana sayfa, Profil, Kitap detay
+|   |-- admin/                # Dashboard, Yonetim ekranlari
+|-- widgets/                  # Yeniden kullanilabilir widgetlar
+\end{lstlisting}
+
+% ==================== STATE MANAGEMENT ====================
+\section{State Management - Riverpod}
+
+\subsection{Provider Yapisi}
+Uygulama, Riverpod kutuphanesi ile state yonetimi yapmaktadir:
+
+\begin{lstlisting}[language=Java]
+// Ornek: Book Provider
+final allBooksProvider = FutureProvider<List<BookModel>>((ref) async {
+  final service = ref.watch(bookServiceProvider);
+  return await service.getAllBooks();
+});
+
+// Ornek: Auth Provider
+final authNotifierProvider = 
+  StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+    return AuthNotifier(ref);
+});
+\end{lstlisting}
+
+\subsection{Kullanilan Providerlar}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Provider} & \textbf{Aciklama} \\
+\hline
+authNotifierProvider & Kullanici oturum durumu \\
+currentUserProvider & Mevcut kullanici bilgisi \\
+allBooksProvider & Tum kitaplar listesi \\
+allLoansProvider & Tum odunc kayitlari \\
+pendingLoansProvider & Bekleyen talepler \\
+libraryStatisticsProvider & Kutuphane istatistikleri \\
+categoryStatisticsProvider & Kategori istatistikleri \\
+topBooksProvider & Populer kitaplar \\
+\hline
+\end{tabular}
+\caption{Riverpod Provider Listesi}
+\end{table}
+
+% ==================== API ENTEGRASYONU ====================
+\section{API Entegrasyonu}
+
+\subsection{Dio HTTP Client}
+API istekleri Dio kutuphanesi ile yapilmaktadir:
+
+\begin{lstlisting}[language=Java]
+class ApiClient {
+  late final Dio _dio;
+  final FlutterSecureStorage _secureStorage;
+  
+  ApiClient._internal() {
+    _dio = Dio(BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      connectTimeout: Duration(seconds: 30),
+    ));
+    
+    // JWT Token interceptor
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final token = await getToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        return handler.next(options);
+      },
+    ));
+  }
+}
+\end{lstlisting}
+
+\subsection{API Servisleri}
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Servis} & \textbf{Islevler} \\
+\hline
+AuthService & login, register, getCurrentUser \\
+BookService & getAllBooks, getBookById, search \\
+LoanService & createLoan, returnBook, getMyLoans \\
+CategoryService & getCategories, getActiveCategories \\
+StatisticsService & getStatistics, getCategoryStats, getTopBooks \\
+\hline
+\end{tabular}
+\caption{API Servisleri}
+\end{table}
+
+% ==================== EKRANLAR ====================
+\section{Uygulama Ekranlari}
+
+\subsection{Auth Ekranlari}
+\begin{itemize}
+    \item \textbf{SplashScreen:} Uygulama acilis, token kontrolu
+    \item \textbf{LoginScreen:} Kullanici girisi (email/sifre)
+    \item \textbf{RegisterScreen:} Yeni kullanici kaydi
+\end{itemize}
+
+\subsection{User Ekranlari}
+\begin{itemize}
+    \item \textbf{HomeScreen:} Kitap listesi, arama, kategori filtre
+    \item \textbf{BookDetailScreen:} Kitap detayi, odunc alma butonu
+    \item \textbf{ProfileScreen:} Profil bilgileri, odunc gecmisi
+\end{itemize}
+
+\subsection{Admin Ekranlari}
+\begin{itemize}
+    \item \textbf{AdminDashboardScreen:} Ozet istatistikler, hizli erisim
+    \item \textbf{BookManagementScreen:} Kitap CRUD islemleri
+    \item \textbf{LoanManagementScreen:} Odunc onay/red islemleri
+    \item \textbf{StatisticsScreen:} Grafikli istatistik raporu
+\end{itemize}
+
+% ==================== GRAFIKLER ====================
+\section{Istatistik Grafikleri}
+
+\subsection{fl\_chart Entegrasyonu}
+Uygulama, fl\_chart kutuphanesi ile grafik gosterimi yapmaktadir:
+
+\begin{itemize}
+    \item \textbf{PieChart:} Kategori bazli kitap dagilimi
+    \item \textbf{LineChart:} Aylik odunc trendi
+    \item \textbf{Stat Cards:} Ozet istatistik kartlari
+\end{itemize}
+
+\begin{lstlisting}[language=Java]
+// Ornek: PieChart kullanimi
+PieChart(
+  PieChartData(
+    sections: categories.map((cat) => 
+      PieChartSectionData(
+        value: cat.bookCount.toDouble(),
+        title: cat.categoryName,
+        color: colors[index],
+      )
+    ).toList(),
+  ),
+)
+\end{lstlisting}
+
+% ==================== FREEZED ====================
+\section{Model Generation - Freezed}
+
+\subsection{Immutable Data Classes}
+Freezed kutuphanesi ile immutable ve type-safe modeller olusturulmaktadir:
+
+\begin{lstlisting}[language=Java]
+@freezed
+class BookModel with _$BookModel {
+  const factory BookModel({
+    required int id,
+    required String title,
+    required String author,
+    required int categoryId,
+    required String categoryName,
+    String? isbn,
+    int? publishYear,
+    String? imageUrl,
+    @Default(true) bool isAvailable,
+  }) = _BookModel;
+
+  factory BookModel.fromJson(Map<String, dynamic> json) =>
+      _$BookModelFromJson(json);
+}
+\end{lstlisting}
+
+\subsection{Modeller}
+\begin{itemize}
+    \item BookModel - Kitap verisi
+    \item UserModel - Kullanici verisi
+    \item LoanModel - Odunc verisi
+    \item CategoryModel - Kategori verisi
+    \item LibraryStatistics - Genel istatistikler
+    \item CategoryStatistics - Kategori istatistikleri
+    \item TopBook - Populer kitaplar
+\end{itemize}
+
+% ==================== NAVIGATION ====================
+\section{Navigation - go\_router}
+
+\subsection{Route Yapisi}
+\begin{lstlisting}[language=Java]
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: '/splash',
+    routes: [
+      GoRoute(path: '/splash', builder: (_, __) => SplashScreen()),
+      GoRoute(path: '/auth/login', builder: (_, __) => LoginScreen()),
+      GoRoute(path: '/auth/register', builder: (_, __) => RegisterScreen()),
+      GoRoute(path: '/home', builder: (_, __) => HomeScreen()),
+      GoRoute(path: '/book/:id', builder: (_, state) => 
+        BookDetailScreen(bookId: state.pathParameters['id']!)),
+      GoRoute(path: '/admin', builder: (_, __) => AdminDashboardScreen()),
+      GoRoute(path: '/admin/statistics', builder: (_, __) => 
+        StatisticsScreen()),
+    ],
+  );
+});
+\end{lstlisting}
+
+% ==================== SONUC ====================
+\section{Sonuc ve Degerlendirme}
+
+\subsection{Tamamlanan Ozellikler}
+\begin{itemize}
+    \item JWT tabanli kimlik dogrulama
+    \item Kitap listeleme, arama, filtreleme
+    \item Kitap odunc talebi olusturma ve takip
+    \item Admin paneli ile tam yonetim
+    \item Grafikli istatistik goruntulemem
+    \item Responsive ve modern UI tasarimi
+    \item Cross-platform destek (Android/iOS)
+\end{itemize}
+
+\subsection{Ogrenilen Konular}
+\begin{itemize}
+    \item Flutter widget yapisi ve lifecycle
+    \item Riverpod ile state management
+    \item Freezed ile code generation
+    \item Dio ile REST API entegrasyonu
+    \item go\_router ile declarative navigation
+    \item fl\_chart ile veri gorsellestirme
+\end{itemize}
+
+% ==================== KAYNAKLAR ====================
+\section{Kaynaklar}
+\begin{enumerate}
+    \item Flutter Documentation - \url{https://flutter.dev/docs}
+    \item Riverpod Documentation - \url{https://riverpod.dev}
+    \item Freezed Package - \url{https://pub.dev/packages/freezed}
+    \item Dio Package - \url{https://pub.dev/packages/dio}
+    \item fl\_chart Package - \url{https://pub.dev/packages/fl_chart}
+    \item go\_router Package - \url{https://pub.dev/packages/go_router}
+\end{enumerate}
+
+\end{document}
