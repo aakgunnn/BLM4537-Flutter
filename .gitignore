@@ -18,20 +18,20 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
 /coverage/
+pubspec.lock
 
 # Symbolication related
 app.*.symbols
@@ -39,15 +39,67 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio build artifacts
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.gradle/
+/android/local.properties
+/android/app/src/main/res/drawable-*/
+*.keystore
+*.jks
 
+# iOS specific
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/app.flx
+/ios/Flutter/engine
+/ios/Flutter/flutter_assets
+/ios/ServiceDefinitions.json
+/ios/Runner/GeneratedPluginRegistrant.*
+Podfile.lock
 
+# Generated files (Freezed, JSON Serializable)
+# Keep these - they are needed for project to work
+# *.freezed.dart
+# *.g.dart
+
+# LaTeX auxiliary files
+*.aux
+*.lof
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.bbl
+*.blg
+*.dvi
+*.synctex.gz
+*.fdb_latexmk
+
+# Keep PDF files
+!*.pdf
+
+# Old/Unnecessary documentation
 BACKEND_RESTART_NEEDED.md
-BLM4531.pdf
-DOTNET_INTEGRATION_GUIDE.md
 FIREBASE_SETUP.md
-FinalRapor_Flutter.tex
-README.md
+seed_books.json
+
+# Keep these important files:
+# - lib/ (all source code)
+# - pubspec.yaml
+# - README.md
+# - DOTNET_INTEGRATION_GUIDE.md
+# - FinalRapor_Flutter.tex
+# - FinalRapor_Flutter.pdf
+# - assets/
+# - android/app/src/main/AndroidManifest.xml
+# - ios/Runner/Info.plist
