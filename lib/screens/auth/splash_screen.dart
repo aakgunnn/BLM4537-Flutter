@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/constants/app_constants.dart';
 import '../../providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -62,7 +61,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              AppConstants.appName,
+              'Kütüphane Yönetim Sistemi',
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                     color: AppColors.white,
                     fontWeight: FontWeight.bold,

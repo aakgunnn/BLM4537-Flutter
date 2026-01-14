@@ -211,6 +211,7 @@ class _LoanManagementScreenState extends ConsumerState<LoanManagementScreen>
       appBar: AppBar(
         title: const Text('Ödünç Yönetimi'),
         bottom: TabBar(
+          labelColor: Colors.white,
           controller: _tabController,
           tabs: const [
             Tab(text: 'Bekleyen'),

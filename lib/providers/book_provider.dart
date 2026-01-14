@@ -79,7 +79,6 @@ final filteredBooksProvider = FutureProvider<List<BookModel>>((ref) async {
     final selectedCategory = ref.watch(selectedCategoryProvider);
 
     var filtered = allBooks;
-
     // Filter by search query
     if (searchQuery.isNotEmpty) {
       filtered = filtered.where((book) {
@@ -92,7 +91,6 @@ final filteredBooksProvider = FutureProvider<List<BookModel>>((ref) async {
     if (selectedCategory != null) {
       filtered = filtered.where((book) => book.categoryId == selectedCategory).toList();
     }
-
     return filtered;
   } catch (e) {
     print('❌ filteredBooksProvider error: $e');
